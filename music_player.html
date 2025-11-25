@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Integrated Music Player</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+  <!-- Main / project CSS -->
+  <link rel="stylesheet" href="music_player.css" />
+</head>
+<body data-theme="dark">
+  <!-- Mobile sidebar toggle -->
+  <button id="mobile-menu-toggle" class="fas fa-bars"></button>
+
+  <div id="player-container">
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <h2>🎵 My Music</h2>
+
+      <nav id="main-nav">
+        <button id="view-all" data-view="playlist"><i class="fas fa-list"></i> Playlist</button>
+        <button id="view-favorites" data-view="favorites"><i class="fas fa-heart"></i> Favorites</button>
+      </nav>
+
+      <h3>Categories</h3>
+      <div id="categories-list">
+        <button class="filter-btn" data-category="Hindi"><i class="fas fa-music"></i> Hindi Songs</button>
+        <button class="filter-btn" data-category="English"><i class="fas fa-globe"></i> English Songs</button>
+        <button class="filter-btn" data-category="Punjabi"><i class="fas fa-drum"></i> Punjabi Songs</button>
+      </div>
+
+      <button id="view-all-categories-btn" class="view-all-btn"><i class="fas fa-layer-group"></i> View all categories</button>
+
+      <h3>Artists</h3>
+      <ul id="artists-list"></ul>
+
+      <div id="sidebar-footer">
+        <button id="theme-toggle" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main id="main-content">
+      <div id="main-header-row">
+        <div id="title-and-actions">
+          <h2 id="current-view-title">All Songs</h2>
+          <button id="clear-favorites-btn" title="Clear all favorites"><i class="fas fa-trash"></i></button>
+        </div>
+
+        <div id="content-view-toggle">
+          <button class="main-view-btn active-main-view" data-main-view="songs">Songs</button>
+          <button class="main-view-btn" data-main-view="albums">Albums</button>
+          <button class="main-view-btn" data-main-view="artists">Artists</button>
+        </div>
+      </div>
+
+      <div id="search-container">
+        <input type="text" id="search-bar" placeholder="Search by song title or artist..." />
+      </div>
+
+      <!-- NOW PLAYING MINI QUEUE -->
+      <section id="now-playing-panel">
+        <div id="now-playing-header">
+          <h3>Now Playing Queue</h3>
+          <span id="now-playing-subtitle">Songs you add as “Play next”</span>
+        </div>
+        <ul id="now-playing-list"></ul>
+      </section>
+
+      <!-- ALBUM / SONG / ARTIST CARDS LIST -->
+      <ul id="song-list"></ul>
+    </main>
+
+    <!-- BOTTOM PLAYER -->
+    <div id="bottom-player-container">
+      <footer id="music-player">
+        <div id="progress-area">
+          <span id="current-time">0:00</span>
+          <input type="range" id="progress-bar" min="0" max="100" value="0" />
+          <span id="duration">0:00</span>
+        </div>
+
+        <div id="controls-and-volume">
+          <div id="volume-control">
+            <span id="volume-icon">🔊</span>
+            <input type="range" id="volume-bar" min="0" max="100" value="100" />
+          </div>
+
+          <div id="controls">
+            <button id="shuffle-btn" title="Shuffle"><i class="fas fa-random"></i></button>
+            <button id="prev-btn">⏮️</button>
+            <button id="play-pause-btn">▶️</button>
+            <button id="next-btn">⏭️</button>
+            <button id="repeat-btn" title="Repeat"><i class="fas fa-repeat"></i></button>
+          </div>
+
+          <div id="current-song-info">
+            <img id="mini-cover" class="hidden" src="covers/default.jpg" alt="Current cover" />
+            <div id="current-song-text">
+              <span id="player-title">No Song Selected</span>
+              <span id="player-artist"></span>
+            </div>
+          </div>
+        </div>
+
+        <audio id="audio-element" src=""></audio>
+      </footer>
+
+      <div id="quick-actions-box">
+        <span id="qa-label">🎧 Current Playing Song</span>
+        <div id="quick-actions">
+          <button id="qa-favorite-btn" title="Toggle favorite"><i class="fas fa-heart"></i></button>
+          <button id="qa-queue-btn" title="Add to queue"><i class="fas fa-list-ul"></i></button>
+          <button id="qa-download-btn" title="Download song"><i class="fas fa-download"></i></button>
+          <button id="qa-playlist-btn" title="Add to playlist"><i class="fas fa-folder-plus"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORY MODAL -->
+  <div id="category-modal">
+    <div id="category-modal-content">
+      <button id="category-modal-close" class="modal-close-btn"><i class="fas fa-times"></i></button>
+      <h2 id="category-modal-title">All Categories</h2>
+      <div id="category-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ----------------------------------------------------------------
+       UPGRADED FULL-SCREEN PLAYER OVERLAY
+       (replaced the previous overlay with the improved markup taken from
+       your second project's index.html)
+       ----------------------------------------------------------------
+       Source for this block: second project `index.html`. :contentReference[oaicite:2]{index=2}
+  -->
+  <div id="animated-player-overlay">
+    <button id="close-player-btn" class="fas fa-times"></button>
+
+    <div id="full-player-content">
+      <div id="full-player-layout">
+        <!-- HERO ROW: LEFT (disc/visualizer + meta) + RIGHT (playlist) -->
+        <div id="full-player-hero-row">
+          <!-- LEFT SIDE -->
+          <div id="full-player-left">
+            <div id="full-player-circle">
+              <div id="full-player-glow"></div>
+
+              <div id="disc-visualizer-stack">
+                <!-- DISC VIEW -->
+                <div id="disc-view" class="dv-view dv-active">
+                  <div id="spinning-disc">
+                    <div id="disc-center">
+                      <img id="full-player-cover" src="covers/default.jpg" alt="Current cover" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- VISUALIZER VIEW (replaces disc when toggled) -->
+                <div id="visualizer-view" class="dv-view">
+                  <div id="visualizer-circle">
+                    <div id="visualizer-bars">
+                      <!-- visualizer bars (rendered by CSS/JS) -->
+                      <span class="viz-bar"></span><span class="viz-bar"></span><span class="viz-bar"></span>
+                      <span class="viz-bar"></span><span class="viz-bar"></span><span class="viz-bar"></span>
+                      <span class="viz-bar"></span><span class="viz-bar"></span><span class="viz-bar"></span>
+                      <span class="viz-bar"></span><span class="viz-bar"></span><span class="viz-bar"></span>
+                      <span class="viz-bar"></span><span class="viz-bar"></span><span class="viz-bar"></span>
+                      <span class="viz-bar"></span><span class="viz-bar"></span><span class="viz-bar"></span>
+                      <span class="viz-bar"></span><span class="viz-bar"></span><span class="viz-bar"></span>
+                      <span class="viz-bar"></span><span class="viz-bar"></span><span class="viz-bar"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- toggle arrow -->
+              <button id="dv-toggle-btn" title="Toggle visualizer"><i class="fas fa-arrows-rotate"></i></button>
+            </div>
+
+            <div id="full-player-meta">
+              <h2 id="animated-title">No Song Selected</h2>
+              <p id="animated-artist">Choose something from your library to start listening.</p>
+            </div>
+          </div>
+
+          <!-- RIGHT SIDE: CATEGORY TABS + PLAYLIST -->
+          <div id="full-player-right">
+            <div id="full-tabs-row">
+              <button class="full-tab-btn active-full-tab" data-full-cat="All">All</button>
+              <button class="full-tab-btn" data-full-cat="Hindi">Hindi</button>
+              <button class="full-tab-btn" data-full-cat="English">English</button>
+              <button class="full-tab-btn" data-full-cat="Punjabi">Punjabi</button>
+              <button class="full-tab-btn" data-full-cat="Haryanavi">Haryanavi</button>
+              <button class="full-tab-btn" data-full-cat="Bhojpuri">Bhojpuri</button>
+            </div>
+
+            <div id="full-playlist-container">
+              <ul id="full-playlist">
+                <!-- Filled by JS -->
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTROLS ROW -->
+        <div id="full-player-controls-container">
+          <div id="full-progress-area">
+            <span id="full-current-time">0:00</span>
+            <input type="range" id="full-progress-bar" min="0" max="100" value="0" />
+            <span id="full-duration">0:00</span>
+          </div>
+
+          <div id="full-controls-and-volume">
+            <div id="full-volume-group">
+              <i class="fas fa-volume-up" id="full-volume-icon"></i>
+              <input type="range" id="full-volume-bar" min="0" max="100" value="100" />
+            </div>
+
+            <div id="full-controls">
+              <button id="full-prev-btn" class="fas fa-step-backward"></button>
+              <button id="full-play-pause-btn" class="fas fa-play"></button>
+              <button id="full-next-btn" class="fas fa-step-forward"></button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating button to open full-screen player -->
+  <button id="open-player-icon" class="fas fa-compact-disc"></button>
+
+  <!-- CONFIRMATION MODAL -->
+  <div id="confirm-modal">
+    <div id="confirm-modal-content">
+      <h3 id="confirm-modal-title">Clear all favorites?</h3>
+      <p id="confirm-modal-message">This will remove all songs from your favorites list. You can favorite them again later.</p>
+      <div id="confirm-modal-actions">
+        <button id="confirm-modal-cancel">Cancel</button>
+        <button id="confirm-modal-ok"><i class="fas fa-trash"></i> Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data + main JS -->
+  <script src="data.js"></script>
+  <script src="music_player.js"></script>
+</body>
+</html>
